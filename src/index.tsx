@@ -14,9 +14,9 @@ const root = ReactDOM.createRoot(
 root.render(
     <ReduxProvider store={store}>
       <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </QueryClientProvider>
     </ReduxProvider>
 );

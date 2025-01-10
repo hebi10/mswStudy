@@ -25,68 +25,67 @@ const products = Array.from({ length: 20 }, (_, index) => ({
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
 export const handlers = [
-  // 로그인 핸들러
-  http.post(`${baseUrl}/api/login`, (req, res, ctx) => {
-    const { username, password } = req.body as { username: string; password: string };
-
-    const user = users.find(u => u.id === username);
-
-    if (user && password === 'password') { // 간단한 비밀번호 검증
-      return res(
-        ctx.status(200),
-        ctx.json(user),
-        ctx.cookie('connect.sid', 'msw-cookie', { httpOnly: true, path: '/' })
-      );
-    } else {
-      return res(
-        ctx.status(401),
-        ctx.json({ message: 'Invalid credentials' })
-      );
-    }
+  http.post(`${baseUrl}/api/login`, () => {
+    console.log('로그인');
+    return HttpResponse.json(users[1], {
+      headers: {
+        'Set-Cookie': 'connect.sid=msw-cookie;HttpOnly;Path=/'
+      },
+    })
   }),
-
-  // 로그아웃 핸들러
-  http.post('/api/logout', (req, res, ctx) => {
-    return res(
-      ctx.status(200),
-      ctx.json({ message: 'Logged out successfully' }),
-      ctx.cookie('connect.sid', '', { httpOnly: true, path: '/', maxAge: 0 })
-    );
+  http.post(`${baseUrl}/api/logout`, () => {
+    console.log('로그아웃');
+    return new HttpResponse(null, {
+      headers: {
+        'Set-Cookie': 'connect.sid=;HttpOnly;Path=/;Max-Age=0'
+      }
+    })
   }),
+  http.post(`${baseUrl}/api/users`, async ({ request }) => {
+    console.log('회원가입');
+    // return HttpResponse.text(JSON.stringify('user_exists'), {
+    //   status: 403,
+    // });
+    return HttpResponse.text(JSON.stringify('ok'), {
+      headers: {
+        'Set-Cookie': 'connect.sid=msw-cookie;HttpOnly;Path=/'
+      },
+    });
+  })
 
   // 회원가입 핸들러
-  http.post('/api/users', (req, res, ctx) => {
-    const { username, password, nickname } = req.body as { username: string; password: string; nickname: string };
+  // http.post('/api/users', (req, res, ctx) => {
+  //   const { username, password, nickname } = req.body as { username: string; password: string; nickname: string };
 
-    const existingUser = users.find(u => u.id === username);
+  //   const existingUser = users.find(u => u.id === username);
 
-    if (existingUser) {
-      return res(
-        ctx.status(403),
-        ctx.json({ message: 'User already exists' })
-      );
-    }
+  //   if (existingUser) {
+  //     return res(
+  //       ctx.status(403),
+  //       ctx.json({ message: 'User already exists' })
+  //     );
+  //   }
 
-    const newUser: User = {
-      id: username,
-      nickname,
-      image: faker.image.avatar(),
-    };
+  //   const newUser: User = {
+  //     id: username,
+  //     nickname,
+  //     image: faker.image.avatar(),
+  //   };
 
-    users.push(newUser);
+  //   users.push(newUser);
 
-    return res(
-      ctx.status(201),
-      ctx.json(newUser),
-      ctx.cookie('connect.sid', 'msw-cookie', { httpOnly: true, path: '/' })
-    );
-  }),
+  //   return res(
+  //     ctx.status(201),
+  //     ctx.json(newUser),
+  //     ctx.cookie('connect.sid', 'msw-cookie', { httpOnly: true, path: '/' })
+  //   );
+  // }),
 
   // 상품 목록 핸들러
-  http.get('/api/products', (req, res, ctx) => {
-    return res(
-      ctx.status(200),
-      ctx.json(products)
-    );
-  }),
+  // http.get('/api/products', (req, res, ctx) => {
+  //   return res(
+  //     ctx.status(200),
+  //     ctx.json(products)
+  //   );
+  // }),
 ];
