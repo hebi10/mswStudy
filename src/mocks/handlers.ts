@@ -9,8 +9,8 @@ interface User {
 }
 
 const users: User[] = [
-  { id: 'elonmusk', nickname: 'Elon Musk', image: '/yRsRRjGO.jpg' },
-  { id: 'zerohch0', nickname: '제로초', image: '/5Udwvqim.jpg' },
+  { id: 'elonmusk', nickname: 'Elon Musk', image: faker.image.avatar() },
+  { id: 'zerohch0', nickname: '제로초', image: faker.image.avatar() },
   { id: 'leoturtle', nickname: '레오', image: faker.image.avatar() },
 ];
 
@@ -31,7 +31,7 @@ export const handlers = [
 
     const user = users.find(u => u.id === username);
 
-    if (user && password === 'password') { // 간단한 비밀번호 검증
+    if (user && password === '1234') { // 간단한 비밀번호 검증
       return HttpResponse.json(
         JSON.stringify(user),
         {

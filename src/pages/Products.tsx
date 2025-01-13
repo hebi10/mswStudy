@@ -21,7 +21,7 @@ const Products: React.FC = () => {
             <h3>{product.title}</h3>
             <p>{product.description}</p>
             <p><strong>Price:</strong> ${product.price}</p>
-            <img src={product.image} alt={product.title} width={200} height={200} style={{objectFit: "contain"}} />
+            <img src={product.image} alt={product.title} width={200} height={200} style={{objectFit: "cover"}} />
           </li>
         ))}
       </ul>

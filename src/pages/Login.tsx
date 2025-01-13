@@ -1,21 +1,41 @@
 import React, { useState } from 'react';
 import { useLogin } from '../hooks/useLogin';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { login } from '../features/user/userSlice';
+
+interface UserData {
+  id: string;
+  nickname: string;
+  image: string;
+  isLoggedIn: boolean;
+}
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const loginMutation = useLogin();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     loginMutation.mutate({ username, password }, {
-      onSuccess: () => {
+      onSuccess: (user: UserData) => {
+        dispatch(login({
+          id: user.id,
+          nickname: user.nickname,
+          image: user.image,
+        }));
         navigate('/profile');
+      },
+      onError: (error: Error) => {
+        console.error('로그인 실패:', error.message);
+        alert('로그인에 실패했습니다. 다시 시도해주세요.');
       },
     });
   };
+  
 
   return (
     <div style={{ padding: '2rem' }}>
@@ -46,6 +66,10 @@ const Login: React.FC = () => {
       {loginMutation.isError && (
         <p style={{ color: 'red' }}>Login failed. Please check your credentials.</p>
       )}
+      <dl>
+        <dt>elonmusk</dt>
+        <dd>1234</dd>
+      </dl>
     </div>
   );
 };
