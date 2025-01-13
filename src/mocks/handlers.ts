@@ -25,67 +25,98 @@ const products = Array.from({ length: 20 }, (_, index) => ({
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
 export const handlers = [
-  http.post(`${baseUrl}/api/login`, () => {
-    console.log('로그인');
-    return HttpResponse.json(users[1], {
-      headers: {
-        'Set-Cookie': 'connect.sid=msw-cookie;HttpOnly;Path=/'
-      },
-    })
+  // 로그인 핸들러
+  http.post(`${baseUrl}/api/login`, async ({ request }) => {
+    const { username, password } = (await request.json()) as { username: string; password: string };
+
+    const user = users.find(u => u.id === username);
+
+    if (user && password === 'password') { // 간단한 비밀번호 검증
+      return HttpResponse.json(
+        JSON.stringify(user),
+        {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Set-Cookie': 'connect.sid=msw-cookie; HttpOnly; Path=/',
+          }
+        }, // 헤더
+      );
+    } else {
+      return HttpResponse.json(
+        { message: 'Invalid credentials' }, // body를 첫 번째 인수로 전달
+        {
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json', // headers 객체 내에 설정
+          },
+        }
+      )
+    }
   }),
+
+  // 로그아웃 핸들러
   http.post(`${baseUrl}/api/logout`, () => {
-    console.log('로그아웃');
-    return new HttpResponse(null, {
-      headers: {
-        'Set-Cookie': 'connect.sid=;HttpOnly;Path=/;Max-Age=0'
+    return new HttpResponse(
+      JSON.stringify({ message: 'Logged out successfully' }), // body
+      {
+        status: 200, // 상태 코드
+        headers: {
+          'Content-Type': 'application/json',
+          'Set-Cookie': 'connect.sid=; HttpOnly; Path=/; Max-Age=0',
+        }, // 헤더
       }
-    })
+    );
   }),
-  http.post(`${baseUrl}/api/users`, async ({ request }) => {
-    console.log('회원가입');
-    // return HttpResponse.text(JSON.stringify('user_exists'), {
-    //   status: 403,
-    // });
-    return HttpResponse.text(JSON.stringify('ok'), {
-      headers: {
-        'Set-Cookie': 'connect.sid=msw-cookie;HttpOnly;Path=/'
-      },
-    });
-  })
 
   // 회원가입 핸들러
-  // http.post('/api/users', (req, res, ctx) => {
-  //   const { username, password, nickname } = req.body as { username: string; password: string; nickname: string };
+  http.post(`${baseUrl}/api/users`, async ({ request }) => {
+    const { username, password, nickname } = await (request.json()) as { username: string; password: string; nickname: string };
 
-  //   const existingUser = users.find(u => u.id === username);
+    const existingUser = users.find(u => u.id === username);
 
-  //   if (existingUser) {
-  //     return res(
-  //       ctx.status(403),
-  //       ctx.json({ message: 'User already exists' })
-  //     );
-  //   }
+    if (existingUser) {
+      return new HttpResponse(
+        JSON.stringify({ message: 'User already exists' }), // body
+        {
+          status: 403, // 상태 코드
+          headers: {
+            'Content-Type': 'application/json',
+          }, // 헤더
+        }
+      );
+    }
 
-  //   const newUser: User = {
-  //     id: username,
-  //     nickname,
-  //     image: faker.image.avatar(),
-  //   };
+    const newUser: User = {
+      id: username,
+      nickname,
+      image: 'https://example.com/avatar/default.png', // faker 사용 예시
+    };
 
-  //   users.push(newUser);
+    users.push(newUser);
 
-  //   return res(
-  //     ctx.status(201),
-  //     ctx.json(newUser),
-  //     ctx.cookie('connect.sid', 'msw-cookie', { httpOnly: true, path: '/' })
-  //   );
-  // }),
+    return new HttpResponse(
+      JSON.stringify(newUser), // body
+      {
+        status: 201, // 상태 코드
+        headers: {
+          'Content-Type': 'application/json',
+          'Set-Cookie': 'connect.sid=msw-cookie; HttpOnly; Path=/',
+        }, // 헤더
+      }
+    );
+  }),
 
   // 상품 목록 핸들러
-  // http.get('/api/products', (req, res, ctx) => {
-  //   return res(
-  //     ctx.status(200),
-  //     ctx.json(products)
-  //   );
-  // }),
+  http.get(`${baseUrl}/api/products`, () => {
+    return new HttpResponse(
+      JSON.stringify(products), // body
+      {
+        status: 200, // 상태 코드
+        headers: {
+          'Content-Type': 'application/json',
+        }, // 헤더
+      }
+    );
+  }),
 ];

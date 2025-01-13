@@ -42,5 +42,10 @@
   "devDependencies": {
     "@types/react-dom": "^19.0.2",
     "msw": "^2.7.0"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
   }
 }
